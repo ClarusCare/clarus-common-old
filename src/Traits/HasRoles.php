@@ -2,6 +2,10 @@
 
 namespace ClarusSharedModels\Traits;
 
+use ClarusSharedModels\Models\Role;
+// use ClarusSharedModels\Models\Partner;
+// use ClarusSharedModels\Models\RoleUser;
+
 // Use string references for models to avoid dependency issues
 // Projects should have these models: Role, Partner, RoleUser
 
