@@ -1,9 +1,12 @@
 <?php
 
-namespace ClarusSharedModels\Traits;
+namespace ClarusSharedModels\Models;
 
 use DateTimeInterface;
 
+/**
+ * Convert timestamps to the previous Laravel timestamp format (Y-m-d h:i:s).
+ */
 trait PreviousTimestampFormat
 {
     /**

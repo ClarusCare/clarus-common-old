@@ -73,25 +73,52 @@ The shared User model includes:
 - Gravatar profile images
 - Password hashing
 
+## Optional Dependencies
+
+Some features require additional packages. Install them in your Laravel project if needed:
+
+```bash
+# For auditing functionality
+composer require owen-it/laravel-auditing
+
+# For secure chat features (if available)
+composer require clarus/secure-chat
+```
+
 ## Adding Project-Specific Features
 
 In each Laravel project, extend the shared model and add project-specific traits:
 
 ```php
-// Project 1
-class User extends ClarusSharedModels\Models\User
+// Project 1 - with optional traits
+use OwenIt\Auditing\Contracts\Auditable;
+use Clarus\SecureChat\Traits\SecureChatUser;
+
+class User extends ClarusSharedModels\Models\User implements Auditable
 {
-    use App\Traits\HasRoles;
-    use Illuminate\Database\Eloquent\SoftDeletes;
-    use App\Traits\AttachesS3Files;
+    use SecureChatUser;
+    use \OwenIt\Auditing\Auditable;
     
     // Project-specific methods
 }
 
-// Project 2  
+// Project 2 - minimal setup
 class User extends ClarusSharedModels\Models\User
 {
     // Only add traits that exist in this project
     // Project-specific methods
 }
 ```
+
+## Required Models in Your Laravel Project
+
+Your Laravel project should have these models for full functionality:
+- `App\Models\Role`
+- `App\Models\Partner` 
+- `App\Models\RoleUser`
+- `App\Models\Provider`
+- `App\Models\CallNote`
+- `App\Models\NotificationProfile`
+- `App\Models\PointOfContact`
+- `App\Models\PushToken`
+- `App\Notifications\ResetPassword`

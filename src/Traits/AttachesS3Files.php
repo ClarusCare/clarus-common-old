@@ -1,11 +1,9 @@
 <?php
 
-namespace App\Traits;
+namespace ClarusSharedModels\Traits;
 
 use stdClass;
 use Exception;
-use App\Http\Middleware\ValidatePresignedUrlSignature;
-use App\Services\Interpolator;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -74,8 +72,12 @@ trait AttachesS3Files
             Log::info("File was uploaded to s3 private bucket using EC2 service, hence get playable audio url from s3 private bucket");
             if (!empty($attachmentName) && $this->isAttachmentBelongsToPrivateBucket($attachmentName) && config('filesystems.disks.s3_private.is_private_bucket')) {
                 Log::info("Get presingned url for transfered files to s3 private bucket, response id : $this->id");
-                $validateUrlInstance = new ValidatePresignedUrlSignature();
-                return config('app.url')."/api/v4/resource-url?token=".$validateUrlInstance->generateHashKey("callResponses$this->id")."&type=callResponses&identifier=$this->id";
+                // Use string reference to avoid hard dependency
+                $validateUrlClass = 'App\\Http\\Middleware\\ValidatePresignedUrlSignature';
+                if (class_exists($validateUrlClass)) {
+                    $validateUrlInstance = new $validateUrlClass();
+                    return config('app.url')."/api/v4/resource-url?token=".$validateUrlInstance->generateHashKey("callResponses$this->id")."&type=callResponses&identifier=$this->id";
+                }
             }
         }
 
@@ -405,7 +407,20 @@ trait AttachesS3Files
 
         $propertyNames = $this->getPropertyNames($attachmentName);
 
-        return (new Interpolator)->interpolate($storagePath, $propertyNames, $this);
+        // Use string reference to avoid hard dependency
+        $interpolatorClass = 'App\\Services\\Interpolator';
+        if (class_exists($interpolatorClass)) {
+            return (new $interpolatorClass)->interpolate($storagePath, $propertyNames, $this);
+        }
+        
+        // Fallback: simple string replacement
+        $path = $storagePath;
+        foreach ($propertyNames as $key => $property) {
+            $path = str_replace(":$key", $this->getAttribute($property) ?? $key, $path);
+        }
+        $path = str_replace(':id', $this->id ?? 'id', $path);
+        
+        return $path;
     }
 
     /**

@@ -2,19 +2,17 @@
 
 namespace ClarusSharedModels\Models;
 
-use App\Traits\AttachesS3Files as TraitsAttachesS3Files;
-use ClarusSharedModels\Traits\HasRoles;
 use Illuminate\Support\Str;
-// use ClarusSharedModels\Traits\AttachesS3Files;
+use ClarusSharedModels\Traits\AttachesS3Files;
+use ClarusSharedModels\Models\PreviousTimestampFormat;
 use Illuminate\Support\Collection;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Notifications\Notifiable;
-// use ClarusSharedModels\Traits\SecureChatUser;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use ClarusSharedModels\Traits\PreviousTimestampFormat;
+use ClarusSharedModels\Traits\HasRoles;
 
 class User extends Authenticatable
 {
@@ -23,11 +21,8 @@ class User extends Authenticatable
     use Notifiable;
     use SoftDeletes;
     use HasApiTokens;
-    // use SecureChatUser;
-    // use AttachesS3Files;
+    use AttachesS3Files;
     use PreviousTimestampFormat;
-
-
 
     /**
      * The accessors to append to the model's array form.
@@ -50,26 +45,17 @@ class User extends Authenticatable
         ],
     ];
 
-    /**
-     * The attributes that should be cast.
-     * Merged from both projects
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
         'accessible_calendars' => 'json',
     ];
 
     /**
      * Attributes that can be mass assigned on this model.
-     * Merged from both projects
      *
      * @var array
      */
     protected $fillable = [
-        'name', 'first_name', 'last_name', 'email', 'password', 'partner_id',
+        'first_name', 'last_name', 'email', 'password', 'partner_id',
         'phonetic_name', 'readback_option', 'receives_on_call_report',
         'accessible_calendars', 'view_own_pages_only',
     ];
@@ -83,7 +69,6 @@ class User extends Authenticatable
 
     /**
      * The attributes that should be hidden for serialization.
-     * Merged from both projects
      *
      * @var array
      */
@@ -101,7 +86,7 @@ class User extends Authenticatable
     /**
      * Determine if the user is attached to the given partner(s).
      *
-     * @param  array|mixed|int  $partners
+     * @param  array|\App\Models\Partner|int  $partners
      * @param  bool  $strict  Check if the user has access to all partners or at least one partner when false.
      * @return bool
      */
@@ -111,7 +96,7 @@ class User extends Authenticatable
             $partners = [$partners];
         }
 
-        if (is_object($partners) && method_exists($partners, 'id')) {
+        if ($partners instanceof Partner) {
             $partners = [$partners->id];
         }
 
@@ -199,53 +184,57 @@ class User extends Authenticatable
 
     /**
      * Get the legacy Role model relationship.
-     * Override in your project's User model if Role class exists
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function legacyRoles()
     {
-        return $this->belongsToMany('App\Models\Role', 'roles_users');
+        return $this->belongsToMany('App\\Models\\Role', 'roles_users');
     }
 
     /**
      * Get the CallNote model relationship.
-     * Override in your project's User model if CallNote class exists
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function notes()
     {
-        return $this->hasMany('App\Models\CallNote');
+        return $this->hasMany('App\\Models\\CallNote');
     }
 
     public function notificationProfile()
     {
-        return $this->morphOne('App\Models\NotificationProfile', 'notifiable');
+        return $this->morphOne('App\\Models\\NotificationProfile', 'notifiable');
     }
 
     /**
      * Get the Partner model relationship.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function partners()
     {
-        return $this->belongsToMany('App\Models\Partner', 'partner_user')->withTimestamps();
+        return $this->belongsToMany('App\\Models\\Partner', 'partner_user')->withTimestamps();
     }
 
     public function pointOfContactFor()
     {
-        return $this->hasOne('App\Models\PointOfContact', 'user_id');
+        return $this->hasOne('App\\Models\\PointOfContact', 'user_id');
     }
 
     public function provider()
     {
-        return $this->hasOne('App\Models\Provider');
+        return $this->hasOne('App\\Models\\Provider');
     }
 
     public function providers()
     {
-        return $this->hasMany('App\Models\Provider');
+        return $this->hasMany('App\\Models\\Provider');
     }
 
     public function pushTokens()
     {
-        return $this->hasMany('App\Models\PushToken');
+        return $this->hasMany('App\\Models\\PushToken');
     }
 
     /**
@@ -289,13 +278,10 @@ class User extends Authenticatable
      */
     public function sendPasswordResetNotification($token): void
     {
-        // Use project's ResetPassword notification if available
-        if (class_exists('App\Notifications\ResetPassword')) {
-            $notificationClass = 'App\Notifications\ResetPassword';
+        // Use string reference to allow projects to define their own notification
+        $notificationClass = 'App\\Notifications\\ResetPassword';
+        if (class_exists($notificationClass)) {
             $this->notify(new $notificationClass($token));
-        } else {
-            // Fallback to Laravel's default
-            parent::sendPasswordResetNotification($token);
         }
     }
 

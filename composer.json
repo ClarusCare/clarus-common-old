@@ -12,6 +12,13 @@
         "illuminate/contracts": "^8.0 || ^9.0 || ^10.0 || ^11.0 || ^12.0",
         "laravel/passport": "^10.0 || ^11.0 || ^12.0 || ^13.0"
     },
+    "require-dev": {
+        "laravel/framework": "^8.0 || ^9.0 || ^10.0 || ^11.0 || ^12.0"
+    },
+    "suggest": {
+        "owen-it/laravel-auditing": "Required for auditing functionality (^13.0)",
+        "clarus/secure-chat": "Required for SecureChatUser trait"
+    },
     "autoload": {
         "psr-4": {
             "ClarusSharedModels\\": "src/"
@@ -19,6 +26,13 @@
         "files": [
             "src/helpers.php"
         ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ClarusSharedModels\\ClarusSharedModelsServiceProvider"
+            ]
+        }
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
