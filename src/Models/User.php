@@ -4,7 +4,6 @@ namespace ClarusSharedModels\Models;
 
 use Illuminate\Support\Str;
 use ClarusSharedModels\Traits\AttachesS3Files;
-use ClarusSharedModels\Models\PreviousTimestampFormat;
 use Illuminate\Support\Collection;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
