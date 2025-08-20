@@ -11,14 +11,16 @@ use Laravel\Passport\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 use ClarusSharedModels\Traits\HasRoles;
 use ClarusSharedModels\Traits\AttachesS3Files;
+use Clarus\SecureChat\Traits\SecureChatUser;
 use App\Notifications\ResetPassword as ResetPasswordNotification;
 
 class User extends Authenticatable implements Auditable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
-    use HasRoles, AttachesS3Files;
+    use HasRoles, SecureChatUser, AttachesS3Files, AuditableTrait;
 
     protected $table = 'users';
 
