@@ -10,17 +10,13 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use OwenIt\Auditing\Contracts\Auditable;
-use OwenIt\Auditing\Auditable as AuditableTrait;
 use ClarusSharedModels\Traits\HasRoles;
 use ClarusSharedModels\Traits\AttachesS3Files;
-use Clarus\SecureChat\Traits\SecureChatUser;
-use App\Notifications\ResetPassword as ResetPasswordNotification;
 
-class User extends Authenticatable implements Auditable
+class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
-    use HasRoles, SecureChatUser, AttachesS3Files, AuditableTrait;
+    use HasRoles, AttachesS3Files;
 
     protected $table = 'users';
 
@@ -239,7 +235,12 @@ class User extends Authenticatable implements Auditable
 
     public function sendPasswordResetNotification($token): void
     {
-        $this->notify(new ResetPasswordNotification($token));
+        if (class_exists('App\\Notifications\\ResetPassword')) {
+            $notificationClass = 'App\\Notifications\\ResetPassword';
+            $this->notify(new $notificationClass($token));
+        } else {
+            parent::sendPasswordResetNotification($token);
+        }
     }
 
     private function partnerIdAttributeIsEmpty()
