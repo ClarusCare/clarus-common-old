@@ -3,40 +3,60 @@
 namespace ClarusSharedModels\Models;
 
 use Illuminate\Support\Str;
-use ClarusSharedModels\Traits\AttachesS3Files;
 use Illuminate\Support\Collection;
-use Laravel\Passport\HasApiTokens;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use OwenIt\Auditing\Contracts\Auditable;
+use OwenIt\Auditing\Auditable as AuditableTrait;
 use ClarusSharedModels\Traits\HasRoles;
+use ClarusSharedModels\Traits\AttachesS3Files;
+use Clarus\SecureChat\Traits\SecureChatUser;
+use App\Notifications\ResetPassword as ResetPasswordNotification;
 
-class User extends Authenticatable
+class User extends Authenticatable implements Auditable
 {
-    use HasRoles;
-    use HasFactory;
-    use Notifiable;
-    use SoftDeletes;
-    use HasApiTokens;
-    use AttachesS3Files;
-    use PreviousTimestampFormat;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasRoles, SecureChatUser, AttachesS3Files, AuditableTrait;
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array
-     */
-    protected $appends = [
-        'full_name', 'profile_image', 'profile_image_retina', 'intercom_hash_web',
+    protected $table = 'users';
+
+    protected $fillable = [
+        'name',
+        'first_name',
+        'last_name',
+        'email',
+        'password',
+        'partner_id',
+        'phonetic_name',
+        'readback_option',
+        'receives_on_call_report',
+        'accessible_calendars',
+        'view_own_pages_only',
     ];
 
-    /**
-     * The attachable S3 file storage definitions.
-     *
-     * @var array
-     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'chat_channel_name',
+    ];
+
+    protected $casts = [
+        'accessible_calendars' => 'json',
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    protected $appends = [
+        'full_name',
+        'profile_image',
+        'profile_image_retina',
+        'intercom_hash_web',
+    ];
+
     protected $attachments = [
         'audio' => [
             'storage_path' => 'audios/:id/original',
@@ -44,51 +64,91 @@ class User extends Authenticatable
         ],
     ];
 
-    protected $casts = [
-        'accessible_calendars' => 'json',
-    ];
+    // Accessors & Mutators
 
-    /**
-     * Attributes that can be mass assigned on this model.
-     *
-     * @var array
-     */
-    protected $fillable = [
-        'first_name', 'last_name', 'email', 'password', 'partner_id',
-        'phonetic_name', 'readback_option', 'receives_on_call_report',
-        'accessible_calendars', 'view_own_pages_only',
-    ];
+    public function getFullNameAttribute()
+    {
+        if (!empty($this->name)) {
+            return $this->name;
+        }
+        return trim("{$this->first_name} {$this->last_name}");
+    }
 
-    /**
-     * The attributes excluded from the model's JSON form.
-     *
-     * @var array
-     */
-    protected $guarded = ['password'];
+    public function getProfileImageAttribute()
+    {
+        return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->email))) . '?d=mp&r=g';
+    }
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array
-     */
-    protected $hidden = [
-        'password', 'remember_token', 'chat_channel_name',
-    ];
+    public function getProfileImageRetinaAttribute()
+    {
+        return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->email))) . '?s=512&d=mp&r=g';
+    }
 
-    /**
-     * The database table used by the model.
-     *
-     * @var string
-     */
-    protected $table = 'users';
+    public function getIntercomHashWebAttribute()
+    {
+        return hash_hmac('sha256', $this->id, env('INTERCOM_SECRET_WEB'));
+    }
 
-    /**
-     * Determine if the user is attached to the given partner(s).
-     *
-     * @param  array|\App\Models\Partner|int  $partners
-     * @param  bool  $strict  Check if the user has access to all partners or at least one partner when false.
-     * @return bool
-     */
+    public function setEmailAttribute($value): void
+    {
+        $this->attributes['email'] = strtolower($value);
+    }
+
+    public function setPasswordAttribute($value): void
+    {
+        if ($value && Hash::needsRehash($value)) {
+            $value = Hash::make($value);
+        }
+
+        if ($value) {
+            $this->attributes['password'] = $value;
+        }
+    }
+
+    // Relationships
+
+    public function providers()
+    {
+        return $this->hasMany(Provider::class);
+    }
+
+    public function notificationProfile()
+    {
+        return $this->morphOne(NotificationProfile::class, 'notifiable');
+    }
+
+    public function partners()
+    {
+        return $this->belongsToMany(Partner::class, 'partner_user')->withTimestamps();
+    }
+
+    public function pointOfContactFor()
+    {
+        return $this->hasOne(PointOfContact::class, 'user_id');
+    }
+
+    public function provider()
+    {
+        return $this->hasOne(Provider::class);
+    }
+
+    public function pushTokens()
+    {
+        return $this->hasMany(PushToken::class);
+    }
+
+    public function legacyRoles()
+    {
+        return $this->belongsToMany(Role::class, 'roles_users');
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(CallNote::class);
+    }
+
+    // Methods
+
     public function canAccessPartners($partners, $strict = true)
     {
         if (is_int($partners)) {
@@ -117,19 +177,14 @@ class User extends Authenticatable
         ]);
     }
 
-    public function getCallerId()
+    public function getCallerId(): void
     {
-        return $this->id;
+        $this->id;
     }
 
     public function getCallerType()
     {
         return 'users';
-    }
-
-    public function getFullNameAttribute()
-    {
-        return (string) Str::of("{$this->first_name} {$this->last_name}")->trim();
     }
 
     public function getPartnerIdAttribute()
@@ -152,26 +207,11 @@ class User extends Authenticatable
         })->values();
     }
 
-    public function getProfileImageAttribute()
-    {
-        return 'https://www.gravatar.com/avatar/'.md5(strtolower(trim($this->email))).'?d=mp&r=g';
-    }
-
-    public function getProfileImageRetinaAttribute()
-    {
-        return 'https://www.gravatar.com/avatar/'.md5(strtolower(trim($this->email))).'?s=512&d=mp&r=g';
-    }
-
     public function isPersonalAccessToken($token)
     {
-        return $token->client->personal_access_client && ! $token->revoked;
+        return $token->client->personal_access_client && !$token->revoked;
     }
 
-    /**
-     * Determine if the user has any providers.
-     *
-     * @return bool
-     */
     public function isProvider(): bool
     {
         if ($this->relationLoaded('providers')) {
@@ -181,142 +221,29 @@ class User extends Authenticatable
         return $this->providers()->exists();
     }
 
-    /**
-     * Get the legacy Role model relationship.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function legacyRoles()
-    {
-        return $this->belongsToMany('App\\Models\\Role', 'roles_users');
-    }
-
-    /**
-     * Get the CallNote model relationship.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function notes()
-    {
-        return $this->hasMany('App\\Models\\CallNote');
-    }
-
-    public function notificationProfile()
-    {
-        return $this->morphOne('App\\Models\\NotificationProfile', 'notifiable');
-    }
-
-    /**
-     * Get the Partner model relationship.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
-     */
-    public function partners()
-    {
-        return $this->belongsToMany('App\\Models\\Partner', 'partner_user')->withTimestamps();
-    }
-
-    public function pointOfContactFor()
-    {
-        return $this->hasOne('App\\Models\\PointOfContact', 'user_id');
-    }
-
-    public function provider()
-    {
-        return $this->hasOne('App\\Models\\Provider');
-    }
-
-    public function providers()
-    {
-        return $this->hasMany('App\\Models\\Provider');
-    }
-
-    public function pushTokens()
-    {
-        return $this->hasMany('App\\Models\\PushToken');
-    }
-
-    /**
-     * Specifies the user's APNS token(s).
-     *
-     * @return string
-     */
     public function routeNotificationForApn()
     {
         return $this->pushTokens()->where('service', 'apns')->active()->get()->pluck('token')->all();
     }
 
-    /**
-     * Specifies the user's FCM token(s).
-     *
-     * @return string[]
-     */
     public function routeNotificationForFcm()
     {
         $maxLimit = config('firebase.max_limit_for_notification');
-        
-        // Filters tokens updated (latest 10)
         return $this->pushTokens()->active()->orderBy('updated_at', 'desc')->take($maxLimit)->get()->pluck('token')->all();
     }
 
-    /**
-     * Route notifications for the Twilio channel to the user.
-     *
-     * @return string
-     */
     public function routeNotificationForTwilio()
     {
         return scrub_twilio_phone_input($this->notificationProfile->phone_number);
     }
 
-    /**
-     * Send the password reset notification.
-     *
-     * @param  string  $token
-     * @return void
-     */
     public function sendPasswordResetNotification($token): void
     {
-        // Use string reference to allow projects to define their own notification
-        $notificationClass = 'App\\Notifications\\ResetPassword';
-        if (class_exists($notificationClass)) {
-            $this->notify(new $notificationClass($token));
-        }
-    }
-
-    public function setEmailAttribute($value): void
-    {
-        $this->attributes['email'] = strtolower($value);
-    }
-
-    /**
-     * Set and hash the password attribute.
-     *
-     * @param  string  $value
-     * @return void
-     */
-    public function setPasswordAttribute($value): void
-    {
-        if ($value && Hash::needsRehash($value)) {
-            $value = Hash::make($value);
-        }
-
-        if ($value) {
-            $this->attributes['password'] = $value;
-        }
+        $this->notify(new ResetPasswordNotification($token));
     }
 
     private function partnerIdAttributeIsEmpty()
     {
-        return ! isset($this->attributes['partner_id']) || ! $this->attributes['partner_id'];
-    }
-
-    public function getIntercomHashWebAttribute()
-    {
-        return hash_hmac(
-            'sha256',
-            $this->id,
-            env('INTERCOM_SECRET_WEB')
-        );
+        return !isset($this->attributes['partner_id']) || !$this->attributes['partner_id'];
     }
 }

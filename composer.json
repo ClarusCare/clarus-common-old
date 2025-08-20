@@ -27,13 +27,6 @@
             "src/helpers.php"
         ]
     },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "ClarusSharedModels\\ClarusSharedModelsServiceProvider"
-            ]
-        }
-    },
     "minimum-stability": "stable",
     "prefer-stable": true,
     "config": {
