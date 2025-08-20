@@ -26,17 +26,17 @@ trait HasRoles
     public function assignRole($role, $partner = null)
     {
         if (is_numeric($role)) {
-            $roleClass = 'App\\Models\\Role';
+            $roleClass = 'ClarusSharedModels\\Models\\Role';
             $role = $roleClass::find((int) $role);
         }
 
         if (is_string($role)) {
-            $roleClass = 'App\\Models\\Role';
+            $roleClass = 'ClarusSharedModels\\Models\\Role';
             $role = $roleClass::where('name', $role)->first();
         }
 
         if (is_numeric($partner)) {
-            $partnerClass = 'App\\Models\\Partner';
+            $partnerClass = 'ClarusSharedModels\\Models\\Partner';
             $partner = $partnerClass::find($partner);
         }
 
@@ -58,7 +58,7 @@ trait HasRoles
      */
     public function getPartnerAdminPartners()
     {
-        $roleClass = 'App\\Models\\Role';
+        $roleClass = 'ClarusSharedModels\\Models\\Role';
         $role = $roleClass::firstWhere('name', $roleClass::PARTNER_ADMIN);
 
         return $this
@@ -266,8 +266,8 @@ trait HasRoles
      */
     public function roles()
     {
-        return $this->belongsToMany('App\\Models\\Role', 'role_user')
-            ->using('App\\Models\\RoleUser')
+        return $this->belongsToMany('ClarusSharedModels\\Models\\Role', 'role_user')
+            ->using('ClarusSharedModels\\Models\\RoleUser')
             ->withPivot('id', 'partner_id')
             ->withTimestamps();
     }
