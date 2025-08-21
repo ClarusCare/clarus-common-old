@@ -2,22 +2,17 @@
 
 namespace ClarusSharedModels\Models;
 
-use App\Calendars\OncallResolver;
-use App\Services\EHR\EHRServiceFactory;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use App\Traits\HasApplicationFeatures;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Clarus\SecureChat\Traits\SecureChatPartner;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Clarus\Transcription\Traits\TranscriptionQualityAssurance;
+use ClarusSharedModels\Models\PreviousTimestampFormat;
 use Carbon\Carbon;
 
 class Partner extends Model
 {
-    use HasApplicationFeatures, HasFactory, PreviousTimestampFormat,
-        SecureChatPartner, TranscriptionQualityAssurance, SoftDeletes;
+    use HasFactory, PreviousTimestampFormat, SoftDeletes;
 
     /**
      * The model's attributes.
@@ -137,7 +132,7 @@ class Partner extends Model
      */
     public function calendars()
     {
-        return $this->hasMany(Calendar::class);
+        return $this->hasMany('App\\Models\\Calendar');
     }
 
     /**
@@ -147,7 +142,7 @@ class Partner extends Model
      */
     public function callDataElements()
     {
-        return $this->hasMany(CallDataElement::class);
+        return $this->hasMany('App\\Models\\CallDataElement');
     }
 
     /**
@@ -157,7 +152,7 @@ class Partner extends Model
      */
     public function calls()
     {
-        return $this->hasMany(Call::class);
+        return $this->hasMany('App\\Models\\Call');
     }
 
     /**
@@ -167,7 +162,7 @@ class Partner extends Model
      */
     public function callTypes()
     {
-        return $this->hasMany(CallType::class);
+        return $this->hasMany('App\\Models\\CallType');
     }
 
     public function getDigestEmailsArrayAttribute()
@@ -199,7 +194,12 @@ class Partner extends Model
             return false;
         }
 
-        return (new OncallResolver($calendar))->resolve();
+        $resolverClass = 'App\\Calendars\\OncallResolver';
+        if (class_exists($resolverClass)) {
+            return (new $resolverClass($calendar))->resolve();
+        }
+        
+        return false;
     }
 
     /**
@@ -215,11 +215,15 @@ class Partner extends Model
 
         if (! $calendar) {
             Log::info('Could not retrieve on call provider. Calendar was not found.', [$calendar, $call->id]);
-
             return false;
         }
 
-        return (new OncallResolver($calendar))->forCall($call)->resolve();
+        $resolverClass = 'App\\Calendars\\OncallResolver';
+        if (class_exists($resolverClass)) {
+            return (new $resolverClass($calendar))->forCall($call)->resolve();
+        }
+        
+        return false;
     }
 
     /**
@@ -327,8 +331,11 @@ class Partner extends Model
     public function getEhrService()
     {
         if ($this->partnerEhrSetting) {
-            $ehrDriver = $this->partnerEhrSetting->ehrDriver->internal_name;
-            return EHRServiceFactory::make($ehrDriver, $this);
+            $factoryClass = 'App\\Services\\EHR\\EHRServiceFactory';
+            if (class_exists($factoryClass)) {
+                $ehrDriver = $this->partnerEhrSetting->ehrDriver->internal_name;
+                return $factoryClass::make($ehrDriver, $this);
+            }
         }
 
         throw new \Exception('Partner is not EHR enabled');
@@ -351,7 +358,7 @@ class Partner extends Model
      */
     public function ivrRoutePlans()
     {
-        return $this->hasMany(IvrRoutePlan::class);
+        return $this->hasMany('App\\Models\\IvrRoutePlan');
     }
 
     /**
@@ -386,12 +393,14 @@ class Partner extends Model
      */
     public function officeManagers()
     {
-        return $this->belongsToMany(User::class, 'role_user')
-            ->using(RoleUser::class)
+        return $this->belongsToMany('App\\Models\\User', 'role_user')
+            ->using('App\\Models\\RoleUser')
             ->withPivot('id', 'role_id')
             ->withTimestamps()
             ->whereHas('roles', function ($query): void {
-                $query->where('roles.name', Role::OFFICE_MANAGER);
+                $roleClass = 'App\\Models\\Role';
+                $officeManagerRole = class_exists($roleClass) && defined($roleClass.'::OFFICE_MANAGER') ? $roleClass::OFFICE_MANAGER : 'office_manager';
+                $query->where('roles.name', $officeManagerRole);
             });
     }
 
@@ -402,7 +411,7 @@ class Partner extends Model
      */
     public function partnerFacilities()
     {
-        return $this->hasMany(PartnerFacility::class);
+        return $this->hasMany('App\\Models\\PartnerFacility');
     }
 
     /**
@@ -412,7 +421,7 @@ class Partner extends Model
      */
     public function partnerGroup()
     {
-        return $this->belongsTo(PartnerGroup::class);
+        return $this->belongsTo('App\\Models\\PartnerGroup');
     }
 
     /**
@@ -422,7 +431,7 @@ class Partner extends Model
      */
     public function partnerProviders()
     {
-        return $this->hasMany(PartnerProvider::class);
+        return $this->hasMany('App\\Models\\PartnerProvider');
     }
 
     /**
@@ -432,7 +441,7 @@ class Partner extends Model
      */
     public function patients()
     {
-        return $this->hasMany(Patient::class);
+        return $this->hasMany('App\\Models\\Patient');
     }
 
     /**
@@ -442,7 +451,7 @@ class Partner extends Model
      */
     public function providerGroups()
     {
-        return $this->hasMany(ProviderGroup::class);
+        return $this->hasMany('App\\Models\\ProviderGroup');
     }
 
     /**
@@ -452,7 +461,7 @@ class Partner extends Model
      */
     public function providers()
     {
-        return $this->hasMany(Provider::class);
+        return $this->hasMany('App\\Models\\Provider');
     }
 
     /**
@@ -462,8 +471,8 @@ class Partner extends Model
      */
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'role_user')
-            ->using(RoleUser::class)
+        return $this->belongsToMany('App\\Models\\Role', 'role_user')
+            ->using('App\\Models\\RoleUser')
             ->withPivot('id', 'user_id')
             ->withTimestamps();
     }
@@ -475,7 +484,7 @@ class Partner extends Model
      */
     public function schedules()
     {
-        return $this->hasMany(PartnerSchedule::class);
+        return $this->hasMany('App\\Models\\PartnerSchedule');
     }
 
     /**
@@ -583,7 +592,7 @@ class Partner extends Model
      */
     public function timeBlocks()
     {
-        return $this->hasMany(TimeBlock::class);
+        return $this->hasMany('App\\Models\\TimeBlock');
     }
 
     /**
@@ -593,7 +602,7 @@ class Partner extends Model
      */
     public function twilioScripts()
     {
-        return $this->hasMany(TwilioScript::class);
+        return $this->hasMany('App\\Models\\TwilioScript');
     }
 
     /**
@@ -603,7 +612,7 @@ class Partner extends Model
      */
     public function users()
     {
-        return $this->belongsToMany(User::class, 'partner_user')->withTimestamps();
+        return $this->belongsToMany('App\\Models\\User', 'partner_user')->withTimestamps();
     }
 
     /**
@@ -613,7 +622,7 @@ class Partner extends Model
      */
     public function partnerEhrSetting()
     {
-        return $this->hasOne(PartnerEhrSetting::class);
+        return $this->hasOne('App\\Models\\PartnerEhrSetting');
     }
 
     /**
@@ -699,7 +708,8 @@ class Partner extends Model
      */
     public function fetchCallCountMetadata() {
         // Retrieve the default date range from the application configurations
-        $defaultRange = ApplicationConfigurations::getConfigurationValueByName('omd_date_range');
+        $configClass = 'App\\Models\\ApplicationConfigurations';
+        $defaultRange = class_exists($configClass) ? $configClass::getConfigurationValueByName('omd_date_range') : null;
         if (!empty($defaultRange)) {
             $starts = Carbon::now()->subDays($defaultRange);
             $ends = Carbon::now();
@@ -734,7 +744,7 @@ class Partner extends Model
      */
     public function reports()
     {
-        return $this->hasMany(Report::class, 'generated_by_partner');
+        return $this->hasMany('App\\Models\\Report', 'generated_by_partner');
     }
 
     /**

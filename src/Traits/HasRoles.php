@@ -19,8 +19,8 @@ trait HasRoles
     /**
      * Assign a given role to the user.
      *
-     * @param  \App\Models\Role|int|string  $role
-     * @param  \App\Models\Partner|int|null  $partner
+     * @param  \ClarusSharedModels\Models\Role|int|string  $role
+     * @param  \ClarusSharedModels\Models\Partner|int|null  $partner
      * @return $this
      */
     public function assignRole($role, $partner = null)
@@ -74,8 +74,8 @@ trait HasRoles
     /**
      * Determine if a user has a given role.
      *
-     * @param  \App\Models\Role|int|string  $role
-     * @param  \App\Models\Partner|int|null  $partner
+     * @param  \ClarusSharedModels\Models\Role|int|string  $role
+     * @param  \ClarusSharedModels\Models\Partner|int|null  $partner
      * @return bool
      */
     public function hasRole($role, $partner = null): bool
@@ -150,7 +150,7 @@ trait HasRoles
     /**
      * Determine if the user is an office manager at a given partner.
      *
-     * @param  \App\Models\Partner|int|null  $partner
+     * @param  \ClarusSharedModels\Models\Partner|int|null  $partner
      * @return bool
      */
     public function isOfficeManager($partner = null): bool
@@ -169,7 +169,7 @@ trait HasRoles
     /**
      * Determines if the user if a partner admin or office manager at the given partner.
      *
-     * @param  int|\App\Models\Partner  $partner
+     * @param  int|\ClarusSharedModels\Models\Partner  $partner
      * @return bool
      */
     public function isOfficeManagerOrPartnerAdmin($partner)
@@ -188,7 +188,7 @@ trait HasRoles
     /**
      * Determine if the user is a partner admin at a given partner.
      *
-     * @param  \App\Models\Partner|int|null  $partner
+     * @param  \ClarusSharedModels\Models\Partner|int|null  $partner
      * @return bool
      */
     public function isPartnerAdmin($partner = null): bool
@@ -233,8 +233,8 @@ trait HasRoles
     /**
      * Revoke a given role from the user.
      *
-     * @param  \App\Models\Role|string|int  $role
-     * @param  \App\Models\Partner|int|null  $partner
+     * @param  \ClarusSharedModels\Models\Role|string|int  $role
+     * @param  \ClarusSharedModels\Models\Partner|int|null  $partner
      * @return void
      */
     public function revokeRole($role, $partner = null): void

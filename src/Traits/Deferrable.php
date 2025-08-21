@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Traits;
+namespace ClarusSharedModels\Traits;
 
 use Carbon\Carbon;
 use App\Models\Provider;

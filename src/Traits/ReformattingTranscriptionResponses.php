@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Traits;
+namespace ClarusSharedModels\Traits;
 
 use DateTime;
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Traits;
+namespace ClarusSharedModels\Traits;
 
-use App\Models\Feature;
-use App\Models\Application;
-use App\Models\ApplicationPartner;
+use ClarusSharedModels\Models\Feature;
+use ClarusSharedModels\Models\Application;
+use ClarusSharedModels\Models\ApplicationPartner;
 use Illuminate\Database\Eloquent\Model;
 use App\Database\Relations\FeatureRelation;
 
