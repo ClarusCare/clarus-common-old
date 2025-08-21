@@ -4,22 +4,21 @@ namespace ClarusSharedModels\Models;
 
 use Carbon\Carbon;
 use NumberFormatter;
-use App\Traits\Deferrable;
-use App\Casts\NotificationSettings;
+use ClarusSharedModels\Traits\Deferrable;
+use ClarusSharedModels\Casts\NotificationSettings;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
-use Laracasts\Presenter\PresentableTrait;
+
 use App\Factories\CallNotificationFactory;
 use Clarus\Transcription\Traits\TranscriptionService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
 class Call extends Model implements Auditable
 {
     use Deferrable;
     use HasFactory;
-    use PresentableTrait;
+
     use TranscriptionService;
     use PreviousTimestampFormat;
     use \OwenIt\Auditing\Auditable;

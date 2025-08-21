@@ -17,7 +17,8 @@
     },
     "suggest": {
         "owen-it/laravel-auditing": "Required for auditing functionality (^13.0)",
-        "clarus/secure-chat": "Required for SecureChatUser trait"
+        "clarus/secure-chat": "Required for SecureChatUser trait",
+        "laracasts/presenter": "Required for PresentableTrait functionality"
     },
     "autoload": {
         "psr-4": {

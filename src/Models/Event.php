@@ -3,7 +3,7 @@
 namespace ClarusSharedModels\Models;
 
 use Illuminate\Support\Carbon;
-use App\Casts\RecurrenceRuleCast;
+use ClarusSharedModels\Casts\RecurrenceRuleCast;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
