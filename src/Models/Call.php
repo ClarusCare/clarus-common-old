@@ -9,19 +9,15 @@ use ClarusSharedModels\Casts\NotificationSettings;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
-use OwenIt\Auditing\Contracts\Auditable;
-
 use App\Factories\CallNotificationFactory;
-use Clarus\Transcription\Traits\TranscriptionService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-class Call extends Model implements Auditable
+use ClarusSharedModels\Models\PreviousTimestampFormat;
+
+class Call extends Model
 {
     use Deferrable;
     use HasFactory;
-
-    use TranscriptionService;
     use PreviousTimestampFormat;
-    use \OwenIt\Auditing\Auditable;
     
     /**
      * The attributes that are mass assignable.
