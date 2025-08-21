@@ -14,36 +14,10 @@ use ClarusSharedModels\Traits\HasRoles;
 use ClarusSharedModels\Traits\AttachesS3Files;
 use ClarusSharedModels\Models\PreviousTimestampFormat;
 
-
-// Conditional interface for auditing
-if (interface_exists('OwenIt\\Auditing\\Contracts\\Auditable')) {
-    interface UserAuditableInterface extends \OwenIt\Auditing\Contracts\Auditable {}
-} else {
-    interface UserAuditableInterface {}
-}
-
-class User extends Authenticatable implements UserAuditableInterface
+class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
     use HasRoles, AttachesS3Files, PreviousTimestampFormat;
-    
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-        
-        // Add auditing trait if available
-        if (trait_exists('OwenIt\\Auditing\\Auditable')) {
-            $this->initializeAuditable();
-        }
-    }
-    
-    protected function initializeAuditable()
-    {
-        // Initialize auditing if trait exists
-        if (method_exists($this, 'bootAuditable')) {
-            $this->bootAuditable();
-        }
-    }
 
     protected $table = 'users';
 
@@ -132,42 +106,42 @@ class User extends Authenticatable implements UserAuditableInterface
 
     public function providers()
     {
-        return $this->hasMany('App\\Models\\Provider');
+        return $this->hasMany(Provider::class);
     }
 
     public function notificationProfile()
     {
-        return $this->morphOne('App\\Models\\NotificationProfile', 'notifiable');
+        return $this->morphOne(NotificationProfile::class, 'notifiable');
     }
 
     public function partners()
     {
-        return $this->belongsToMany('App\\Models\\Partner', 'partner_user')->withTimestamps();
+        return $this->belongsToMany(Partner::class, 'partner_user')->withTimestamps();
     }
 
     public function pointOfContactFor()
     {
-        return $this->hasOne('App\\Models\\PointOfContact', 'user_id');
+        return $this->hasOne(PointOfContact::class, 'user_id');
     }
 
     public function provider()
     {
-        return $this->hasOne('App\\Models\\Provider');
+        return $this->hasOne(Provider::class);
     }
 
     public function pushTokens()
     {
-        return $this->hasMany('App\\Models\\PushToken');
+        return $this->hasMany(PushToken::class);
     }
 
     public function legacyRoles()
     {
-        return $this->belongsToMany('App\\Models\\Role', 'roles_users');
+        return $this->belongsToMany(Role::class, 'roles_users');
     }
 
     public function notes()
     {
-        return $this->hasMany('App\\Models\\CallNote');
+        return $this->hasMany(CallNote::class);
     }
 
     // Methods
@@ -178,8 +152,7 @@ class User extends Authenticatable implements UserAuditableInterface
             $partners = [$partners];
         }
 
-        $partnerClass = 'App\\Models\\Partner';
-        if (class_exists($partnerClass) && $partners instanceof $partnerClass) {
+        if ($partners instanceof Partner) {
             $partners = [$partners->id];
         }
 
@@ -263,12 +236,12 @@ class User extends Authenticatable implements UserAuditableInterface
 
     public function sendPasswordResetNotification($token): void
     {
-        // Try to use project's ResetPassword notification
-        $notificationClass = 'App\\Notifications\\ResetPassword';
-        if (class_exists($notificationClass)) {
-            $this->notify(new $notificationClass($token));
+        // Check for project notification first, then fallback
+        $projectNotification = 'App\\Notifications\\ResetPassword';
+        
+        if (class_exists($projectNotification)) {
+            $this->notify(new $projectNotification($token));
         } else {
-            // Fallback to Laravel's default
             parent::sendPasswordResetNotification($token);
         }
     }
