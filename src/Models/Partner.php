@@ -242,10 +242,15 @@ class Partner extends Model
             return false;
         }
 
-        return (new OncallResolver($calendar))
-            ->forCall($call)
-            ->duringTime($time)
-            ->resolve();
+        $resolverClass = 'App\\Calendars\\OncallResolver';
+        if (class_exists($resolverClass)) {
+            return (new $resolverClass($calendar))
+                ->forCall($call)
+                ->duringTime($time)
+                ->resolve();
+        }
+        
+        return false;
     }
 
     /**
@@ -261,7 +266,12 @@ class Partner extends Model
             return false;
         }
 
-        return (new OncallResolver($calendar))->useSecondaryFirst()->resolve();
+        $resolverClass = 'App\\Calendars\\OncallResolver';
+        if (class_exists($resolverClass)) {
+            return (new $resolverClass($calendar))->useSecondaryFirst()->resolve();
+        }
+        
+        return false;
     }
 
     /**
@@ -279,7 +289,12 @@ class Partner extends Model
             return false;
         }
 
-        return (new OncallResolver($calendar))->forCall($call)->useSecondaryFirst()->resolve();
+        $resolverClass = 'App\\Calendars\\OncallResolver';
+        if (class_exists($resolverClass)) {
+            return (new $resolverClass($calendar))->forCall($call)->useSecondaryFirst()->resolve();
+        }
+        
+        return false;
     }
 
     /**
@@ -298,11 +313,16 @@ class Partner extends Model
             return false;
         }
 
-        return (new OncallResolver($calendar))
-            ->forCall($call)
-            ->duringTime($time)
-            ->useSecondaryFirst()
-            ->resolve();
+        $resolverClass = 'App\\Calendars\\OncallResolver';
+        if (class_exists($resolverClass)) {
+            return (new $resolverClass($calendar))
+                ->forCall($call)
+                ->duringTime($time)
+                ->useSecondaryFirst()
+                ->resolve();
+        }
+        
+        return false;
     }
 
     /**
