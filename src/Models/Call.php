@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;
 use App\Factories\CallNotificationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use ClarusSharedModels\Models\PreviousTimestampFormat;
 
 class Call extends Model
 {
     use Deferrable;
     use HasFactory;
+
     use PreviousTimestampFormat;
     
     /**
@@ -332,21 +332,6 @@ class Call extends Model
         $formatter = new NumberFormatter('en', NumberFormatter::ORDINAL);
 
         return $formatter->format($this->notifications_attempted);
-    }
-    
-    /**
-     * Retrieve all call responses of type WMA_REPLY associated with this call.
-     *
-     * This method queries the related call responses and filters them to include only those
-     * where the 'type' matches the WMA_REPLY constant defined in the configuration.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection  Collection of call responses with type WMA_REPLY.
-     */
-    public function getWmaResponses()
-    {
-        return $this->callResponses()
-            ->where('type', config('constants.WMA_REPLY'))
-            ->get();
     }
 
     /**
@@ -877,5 +862,36 @@ class Call extends Model
         return $query->where('id', $callId)->where('partner_id', $partnerId);
     }
 
+        /**
+     * Adds a new event to the call.
+     *
+     * @param string $type    The type of the event.
+     * @param string $summary A brief summary of the event.
+     * @param string $agent   The agent responsible for the event (default: 'system').
+     * @return CallEvent      The newly created CallEvent instance.
+     */
+    public function addEvent(string $type, string $summary, string $agent = 'system'): CallEvent
+    {
+        return $this->callEvents()->create([
+            'call_id' => $this->id,
+            'agent'   => $agent,
+            'type'    => $type,
+            'summary' => $summary,
+        ]);
+    }
 
+    /**
+     * Retrieve all call responses of type WMA_REPLY associated with this call.
+     *
+     * This method queries the related call responses and filters them to include only those
+     * where the 'type' matches the WMA_REPLY constant defined in the configuration.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection  Collection of call responses with type WMA_REPLY.
+     */
+    public function getWmaResponses()
+    {
+        return $this->callResponses()
+            ->where('type', config('constants.WMA_REPLY'))
+            ->get();
+    }
 }
