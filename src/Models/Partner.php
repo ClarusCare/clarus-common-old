@@ -184,7 +184,7 @@ class Partner extends Model
     /**
      * Get the current on call provider.
      *
-     * @return \App\Models\Provider
+     * @return \ClarusSharedModels\Models\Provider
      */
     public function getOnCallProvider()
     {
@@ -206,21 +206,21 @@ class Partner extends Model
      * Get the current on call provider by calendar id.
      *
      * @param  int  $calendar
-     * @param  \App\Models\Call  $call
-     * @return \App\Models\Provider|bool
+     * @param  mixed  $type
+     * @return \ClarusSharedModels\Models\Provider|bool
      */
-    public function getOnCallProviderByCalendar($calendar, $call)
+    public function getOnCallProviderByCalendar($calendar, $type = null)
     {
         $calendar = $this->calendars()->find($calendar);
-
         if (! $calendar) {
-            Log::info('Could not retrieve on call provider. Calendar was not found.', [$calendar, $call->id]);
+            Log::info('Could not retrieve on call provider. Calendar was not found.', [$calendar]);
+
             return false;
         }
 
         $resolverClass = 'App\\Calendars\\OncallResolver';
         if (class_exists($resolverClass)) {
-            return (new $resolverClass($calendar))->forCall($call)->resolve();
+            return (new $resolverClass($calendar, $type))->resolve();
         }
         
         return false;
@@ -230,22 +230,21 @@ class Partner extends Model
      * Get the current on call provider by calender id and timestamp.
      *
      * @param  int  $calendar
-     * @param  \App\Models\Call  $call
      * @param  \Carbon\Carbon  $time
-     * @return \App\Models\Provider|bool
+     * @param  mixed  $type
+     * @return \ClarusSharedModels\Models\Provider|bool
      */
-    public function getOnCallProviderByCalendarAndTime($calendar, $call, $time)
+    public function getOnCallProviderByCalendarAndTime($calendar, $time, $type = null)
     {
         $calendar = $this->calendars()->find($calendar);
 
-        if (! $calendar) {
+        if (!$calendar) {
             return false;
         }
 
         $resolverClass = 'App\\Calendars\\OncallResolver';
         if (class_exists($resolverClass)) {
-            return (new $resolverClass($calendar))
-                ->forCall($call)
+            return (new $resolverClass($calendar, $type))
                 ->duringTime($time)
                 ->resolve();
         }
