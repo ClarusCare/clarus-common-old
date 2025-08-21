@@ -2,7 +2,7 @@
 
 namespace ClarusSharedModels\Models;
 
-use App\Traits\Eventable;
+use ClarusSharedModels\Traits\Eventable;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 

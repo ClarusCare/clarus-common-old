@@ -33,7 +33,7 @@ namespace App\Models;
 use ClarusSharedModels\Models\User as SharedUser;
 
 // Add any project-specific traits
-use App\Traits\HasRoles; // Only if this trait exists in your project
+use ClarusSharedModels\Traits\HasRoles; // Only if this trait exists in your project
 use Illuminate\Database\Eloquent\SoftDeletes; // Only if needed
 
 class User extends SharedUser

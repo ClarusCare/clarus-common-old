@@ -3,7 +3,7 @@
 namespace ClarusSharedModels\Models;
 
 use Exception;
-use App\Traits\Eventable;
+use ClarusSharedModels\Traits\Eventable;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;

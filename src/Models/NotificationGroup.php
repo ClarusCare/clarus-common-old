@@ -3,7 +3,7 @@
 namespace ClarusSharedModels\Models;
 
 use NumberFormatter;
-use App\Traits\Deferrable;
+use ClarusSharedModels\Traits\Deferrable;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
 class NotificationGroup extends Eloquent

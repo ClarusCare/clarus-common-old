@@ -2,7 +2,7 @@
 
 namespace ClarusSharedModels\Models;
 
-use App\Traits\AttachesS3Files;
+use ClarusSharedModels\Traits\AttachesS3Files;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 

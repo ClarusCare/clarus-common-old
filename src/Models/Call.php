@@ -333,6 +333,21 @@ class Call extends Model
 
         return $formatter->format($this->notifications_attempted);
     }
+    
+    /**
+     * Retrieve all call responses of type WMA_REPLY associated with this call.
+     *
+     * This method queries the related call responses and filters them to include only those
+     * where the 'type' matches the WMA_REPLY constant defined in the configuration.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection  Collection of call responses with type WMA_REPLY.
+     */
+    public function getWmaResponses()
+    {
+        return $this->callResponses()
+            ->where('type', config('constants.WMA_REPLY'))
+            ->get();
+    }
 
     /**
      * Get the language attribute.
