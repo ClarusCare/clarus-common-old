@@ -10,17 +10,40 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use OwenIt\Auditing\Contracts\Auditable;
-use OwenIt\Auditing\Auditable as AuditableTrait;
 use ClarusSharedModels\Traits\HasRoles;
 use ClarusSharedModels\Traits\AttachesS3Files;
-// use Clarus\SecureChat\Traits\SecureChatUser;
-use App\Notifications\ResetPassword as ResetPasswordNotification;
+use ClarusSharedModels\Models\PreviousTimestampFormat;
 
-class User extends Authenticatable implements Auditable
+
+// Conditional interface for auditing
+if (interface_exists('OwenIt\\Auditing\\Contracts\\Auditable')) {
+    interface UserAuditableInterface extends \OwenIt\Auditing\Contracts\Auditable {}
+} else {
+    interface UserAuditableInterface {}
+}
+
+class User extends Authenticatable implements UserAuditableInterface
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
-    use HasRoles, AttachesS3Files, AuditableTrait;
+    use HasRoles, AttachesS3Files, PreviousTimestampFormat;
+    
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        
+        // Add auditing trait if available
+        if (trait_exists('OwenIt\\Auditing\\Auditable')) {
+            $this->initializeAuditable();
+        }
+    }
+    
+    protected function initializeAuditable()
+    {
+        // Initialize auditing if trait exists
+        if (method_exists($this, 'bootAuditable')) {
+            $this->bootAuditable();
+        }
+    }
 
     protected $table = 'users';
 
@@ -109,42 +132,42 @@ class User extends Authenticatable implements Auditable
 
     public function providers()
     {
-        return $this->hasMany(Provider::class);
+        return $this->hasMany('App\\Models\\Provider');
     }
 
     public function notificationProfile()
     {
-        return $this->morphOne(NotificationProfile::class, 'notifiable');
+        return $this->morphOne('App\\Models\\NotificationProfile', 'notifiable');
     }
 
     public function partners()
     {
-        return $this->belongsToMany(Partner::class, 'partner_user')->withTimestamps();
+        return $this->belongsToMany('App\\Models\\Partner', 'partner_user')->withTimestamps();
     }
 
     public function pointOfContactFor()
     {
-        return $this->hasOne(PointOfContact::class, 'user_id');
+        return $this->hasOne('App\\Models\\PointOfContact', 'user_id');
     }
 
     public function provider()
     {
-        return $this->hasOne(Provider::class);
+        return $this->hasOne('App\\Models\\Provider');
     }
 
     public function pushTokens()
     {
-        return $this->hasMany(PushToken::class);
+        return $this->hasMany('App\\Models\\PushToken');
     }
 
     public function legacyRoles()
     {
-        return $this->belongsToMany(Role::class, 'roles_users');
+        return $this->belongsToMany('App\\Models\\Role', 'roles_users');
     }
 
     public function notes()
     {
-        return $this->hasMany(CallNote::class);
+        return $this->hasMany('App\\Models\\CallNote');
     }
 
     // Methods
@@ -155,7 +178,8 @@ class User extends Authenticatable implements Auditable
             $partners = [$partners];
         }
 
-        if ($partners instanceof Partner) {
+        $partnerClass = 'App\\Models\\Partner';
+        if (class_exists($partnerClass) && $partners instanceof $partnerClass) {
             $partners = [$partners->id];
         }
 
@@ -239,7 +263,14 @@ class User extends Authenticatable implements Auditable
 
     public function sendPasswordResetNotification($token): void
     {
-        $this->notify(new ResetPasswordNotification($token));
+        // Try to use project's ResetPassword notification
+        $notificationClass = 'App\\Notifications\\ResetPassword';
+        if (class_exists($notificationClass)) {
+            $this->notify(new $notificationClass($token));
+        } else {
+            // Fallback to Laravel's default
+            parent::sendPasswordResetNotification($token);
+        }
     }
 
     private function partnerIdAttributeIsEmpty()
