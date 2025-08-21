@@ -132,7 +132,7 @@ class Partner extends Model
      */
     public function calendars()
     {
-        return $this->hasMany('App\\Models\\Calendar');
+        return $this->hasMany('ClarusSharedModels\\Models\\Calendar');
     }
 
     /**
@@ -142,7 +142,7 @@ class Partner extends Model
      */
     public function callDataElements()
     {
-        return $this->hasMany('App\\Models\\CallDataElement');
+        return $this->hasMany('ClarusSharedModels\\Models\\CallDataElement');
     }
 
     /**
@@ -152,7 +152,7 @@ class Partner extends Model
      */
     public function calls()
     {
-        return $this->hasMany('App\\Models\\Call');
+        return $this->hasMany('ClarusSharedModels\\Models\\Call');
     }
 
     /**
@@ -162,7 +162,7 @@ class Partner extends Model
      */
     public function callTypes()
     {
-        return $this->hasMany('App\\Models\\CallType');
+        return $this->hasMany('ClarusSharedModels\\Models\\CallType');
     }
 
     public function getDigestEmailsArrayAttribute()
@@ -358,7 +358,7 @@ class Partner extends Model
      */
     public function ivrRoutePlans()
     {
-        return $this->hasMany('App\\Models\\IvrRoutePlan');
+        return $this->hasMany('ClarusSharedModels\\Models\\IvrRoutePlan');
     }
 
     /**
@@ -393,12 +393,12 @@ class Partner extends Model
      */
     public function officeManagers()
     {
-        return $this->belongsToMany('App\\Models\\User', 'role_user')
-            ->using('App\\Models\\RoleUser')
+        return $this->belongsToMany('ClarusSharedModels\\Models\\User', 'role_user')
+            ->using('ClarusSharedModels\\Models\\RoleUser')
             ->withPivot('id', 'role_id')
             ->withTimestamps()
             ->whereHas('roles', function ($query): void {
-                $roleClass = 'App\\Models\\Role';
+                $roleClass = 'ClarusSharedModels\\Models\\Role';
                 $officeManagerRole = class_exists($roleClass) && defined($roleClass.'::OFFICE_MANAGER') ? $roleClass::OFFICE_MANAGER : 'office_manager';
                 $query->where('roles.name', $officeManagerRole);
             });
@@ -411,7 +411,7 @@ class Partner extends Model
      */
     public function partnerFacilities()
     {
-        return $this->hasMany('App\\Models\\PartnerFacility');
+        return $this->hasMany('ClarusSharedModels\\Models\\PartnerFacility');
     }
 
     /**
@@ -421,7 +421,7 @@ class Partner extends Model
      */
     public function partnerGroup()
     {
-        return $this->belongsTo('App\\Models\\PartnerGroup');
+        return $this->belongsTo('ClarusSharedModels\\Models\\PartnerGroup');
     }
 
     /**
@@ -431,7 +431,7 @@ class Partner extends Model
      */
     public function partnerProviders()
     {
-        return $this->hasMany('App\\Models\\PartnerProvider');
+        return $this->hasMany('ClarusSharedModels\\Models\\PartnerProvider');
     }
 
     /**
@@ -441,7 +441,7 @@ class Partner extends Model
      */
     public function patients()
     {
-        return $this->hasMany('App\\Models\\Patient');
+        return $this->hasMany('ClarusSharedModels\\Models\\Patient');
     }
 
     /**
@@ -451,7 +451,7 @@ class Partner extends Model
      */
     public function providerGroups()
     {
-        return $this->hasMany('App\\Models\\ProviderGroup');
+        return $this->hasMany('ClarusSharedModels\\Models\\ProviderGroup');
     }
 
     /**
@@ -461,7 +461,7 @@ class Partner extends Model
      */
     public function providers()
     {
-        return $this->hasMany('App\\Models\\Provider');
+        return $this->hasMany('ClarusSharedModels\\Models\\Provider');
     }
 
     /**
@@ -471,8 +471,8 @@ class Partner extends Model
      */
     public function roles()
     {
-        return $this->belongsToMany('App\\Models\\Role', 'role_user')
-            ->using('App\\Models\\RoleUser')
+        return $this->belongsToMany('ClarusSharedModels\\Models\\Role', 'role_user')
+            ->using('ClarusSharedModels\\Models\\RoleUser')
             ->withPivot('id', 'user_id')
             ->withTimestamps();
     }
@@ -484,7 +484,7 @@ class Partner extends Model
      */
     public function schedules()
     {
-        return $this->hasMany('App\\Models\\PartnerSchedule');
+        return $this->hasMany('ClarusSharedModels\\Models\\PartnerSchedule');
     }
 
     /**
@@ -592,7 +592,7 @@ class Partner extends Model
      */
     public function timeBlocks()
     {
-        return $this->hasMany('App\\Models\\TimeBlock');
+        return $this->hasMany('ClarusSharedModels\\Models\\TimeBlock');
     }
 
     /**
@@ -602,7 +602,7 @@ class Partner extends Model
      */
     public function twilioScripts()
     {
-        return $this->hasMany('App\\Models\\TwilioScript');
+        return $this->hasMany('ClarusSharedModels\\Models\\TwilioScript');
     }
 
     /**
@@ -612,7 +612,7 @@ class Partner extends Model
      */
     public function users()
     {
-        return $this->belongsToMany('App\\Models\\User', 'partner_user')->withTimestamps();
+        return $this->belongsToMany('ClarusSharedModels\\Models\\User', 'partner_user')->withTimestamps();
     }
 
     /**
@@ -622,7 +622,7 @@ class Partner extends Model
      */
     public function partnerEhrSetting()
     {
-        return $this->hasOne('App\\Models\\PartnerEhrSetting');
+        return $this->hasOne('ClarusSharedModels\\Models\\PartnerEhrSetting');
     }
 
     /**
@@ -708,7 +708,7 @@ class Partner extends Model
      */
     public function fetchCallCountMetadata() {
         // Retrieve the default date range from the application configurations
-        $configClass = 'App\\Models\\ApplicationConfigurations';
+        $configClass = 'ClarusSharedModels\\Models\\ApplicationConfigurations';
         $defaultRange = class_exists($configClass) ? $configClass::getConfigurationValueByName('omd_date_range') : null;
         if (!empty($defaultRange)) {
             $starts = Carbon::now()->subDays($defaultRange);
@@ -744,7 +744,7 @@ class Partner extends Model
      */
     public function reports()
     {
-        return $this->hasMany('App\\Models\\Report', 'generated_by_partner');
+        return $this->hasMany('ClarusSharedModels\\Models\\Report', 'generated_by_partner');
     }
 
     /**
