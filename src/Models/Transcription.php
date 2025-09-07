@@ -1,6 +1,6 @@
 <?php
 
-namespace ClarusSharedModels\Models;
+namespace ClarusCommon\Models;
 
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model as Eloquent;

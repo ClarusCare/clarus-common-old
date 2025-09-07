@@ -1,6 +1,6 @@
 <?php
 
-namespace ClarusSharedModels\Models;
+namespace ClarusCommon\Models;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
@@ -10,9 +10,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use ClarusSharedModels\Traits\HasRoles;
-use ClarusSharedModels\Traits\AttachesS3Files;
-use ClarusSharedModels\Models\PreviousTimestampFormat;
+use ClarusCommon\Traits\HasRoles;
+use ClarusCommon\Traits\AttachesS3Files;
+use ClarusCommon\Models\PreviousTimestampFormat;
 
 class User extends Authenticatable
 {

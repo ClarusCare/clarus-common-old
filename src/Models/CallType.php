@@ -1,6 +1,6 @@
 <?php
 
-namespace ClarusSharedModels\Models;
+namespace ClarusCommon\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;

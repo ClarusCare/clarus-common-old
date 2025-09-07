@@ -1,9 +1,9 @@
 <?php
 
-namespace ClarusSharedModels\Models;
+namespace ClarusCommon\Models;
 
 use Illuminate\Support\Carbon;
-use ClarusSharedModels\Casts\RecurrenceRuleCast;
+use ClarusCommon\Casts\RecurrenceRuleCast;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;

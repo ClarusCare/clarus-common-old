@@ -1,6 +1,6 @@
 <?php
 
-namespace ClarusSharedModels\Traits;
+namespace ClarusCommon\Traits;
 
 use App\Models\Call;
 use App\Models\Recording;

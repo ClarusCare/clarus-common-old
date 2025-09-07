@@ -1,6 +1,6 @@
 <?php
 
-namespace ClarusSharedModels\Traits;
+namespace ClarusCommon\Traits;
 
 
 use Illuminate\Support\Facades\Log;

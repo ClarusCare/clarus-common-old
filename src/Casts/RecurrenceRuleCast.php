@@ -1,6 +1,6 @@
 <?php
 
-namespace ClarusSharedModels\Casts;
+namespace ClarusCommon\Casts;
 
 use Illuminate\Database\Eloquent\JsonEncodingException;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;

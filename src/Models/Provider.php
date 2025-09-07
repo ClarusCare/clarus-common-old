@@ -1,9 +1,9 @@
 <?php
 
-namespace ClarusSharedModels\Models;
+namespace ClarusCommon\Models;
 
 use Exception;
-use ClarusSharedModels\Traits\Eventable;
+use ClarusCommon\Traits\Eventable;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;

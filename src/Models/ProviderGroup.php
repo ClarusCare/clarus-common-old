@@ -1,8 +1,8 @@
 <?php
 
-namespace ClarusSharedModels\Models;
+namespace ClarusCommon\Models;
 
-use ClarusSharedModels\Traits\Eventable;
+use ClarusCommon\Traits\Eventable;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 

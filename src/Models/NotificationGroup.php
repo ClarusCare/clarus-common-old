@@ -1,9 +1,9 @@
 <?php
 
-namespace ClarusSharedModels\Models;
+namespace ClarusCommon\Models;
 
 use NumberFormatter;
-use ClarusSharedModels\Traits\Deferrable;
+use ClarusCommon\Traits\Deferrable;
 use Illuminate\Database\Eloquent\Model as Eloquent;
 
 class NotificationGroup extends Eloquent

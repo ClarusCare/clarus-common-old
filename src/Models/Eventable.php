@@ -1,6 +1,6 @@
 <?php
 
-namespace ClarusSharedModels\Models;
+namespace ClarusCommon\Models;
 
 use App\Scopes\OrderByPosition;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

@@ -1,6 +1,6 @@
 <?php
 
-namespace ClarusSharedModels\Casts;
+namespace ClarusCommon\Casts;
 
 use ArrayAccess;
 use JsonSerializable;

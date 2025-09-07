@@ -1,4 +1,4 @@
-# clarus-shared-models
+# clarus-common
 Common Models and Database Entities for Laravel projects.
 
 ## Installation
@@ -12,7 +12,7 @@ Common Models and Database Entities for Laravel projects.
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/your-username/clarus-shared-models.git"
+            "url": "https://github.com/your-username/clarus-common.git"
         }
     ],
     "require": {
@@ -30,10 +30,10 @@ Common Models and Database Entities for Laravel projects.
 
 namespace App\Models;
 
-use ClarusSharedModels\Models\User as SharedUser;
+use ClarusCommon\Models\User as SharedUser;
 
 // Add any project-specific traits
-use ClarusSharedModels\Traits\HasRoles; // Only if this trait exists in your project
+use ClarusCommon\Traits\HasRoles; // Only if this trait exists in your project
 use Illuminate\Database\Eloquent\SoftDeletes; // Only if needed
 
 class User extends SharedUser
@@ -49,7 +49,7 @@ class User extends SharedUser
 
 1. Add as submodule:
 ```bash
-git submodule add https://github.com/your-username/clarus-shared-models.git shared-models
+git submodule add https://github.com/your-username/clarus-common.git shared-models
 ```
 
 2. Add to composer.json autoload:
@@ -57,7 +57,7 @@ git submodule add https://github.com/your-username/clarus-shared-models.git shar
 {
     "autoload": {
         "psr-4": {
-            "ClarusSharedModels\\": "shared-models/src/"
+            "ClarusCommon\\": "shared-models/src/"
         }
     }
 }
@@ -94,7 +94,7 @@ In each Laravel project, extend the shared model and add project-specific traits
 use OwenIt\Auditing\Contracts\Auditable;
 use Clarus\SecureChat\Traits\SecureChatUser;
 
-class User extends ClarusSharedModels\Models\User implements Auditable
+class User extends ClarusCommon\Models\User implements Auditable
 {
     use SecureChatUser;
     use \OwenIt\Auditing\Auditable;
@@ -103,7 +103,7 @@ class User extends ClarusSharedModels\Models\User implements Auditable
 }
 
 // Project 2 - minimal setup
-class User extends ClarusSharedModels\Models\User
+class User extends ClarusCommon\Models\User
 {
     // Only add traits that exist in this project
     // Project-specific methods

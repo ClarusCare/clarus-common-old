@@ -1,8 +1,8 @@
 <?php
 
-namespace ClarusSharedModels\Models;
+namespace ClarusCommon\Models;
 
-use ClarusSharedModels\Traits\AttachesS3Files;
+use ClarusCommon\Traits\AttachesS3Files;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 

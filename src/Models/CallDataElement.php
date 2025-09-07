@@ -1,6 +1,6 @@
 <?php
 
-namespace ClarusSharedModels\Models;
+namespace ClarusCommon\Models;
 
 use EGALL\Listify\Listify;
 use Illuminate\Database\Eloquent\Model as Eloquent;

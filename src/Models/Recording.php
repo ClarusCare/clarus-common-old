@@ -1,6 +1,6 @@
 <?php
 
-namespace ClarusSharedModels\Models;
+namespace ClarusCommon\Models;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;

@@ -1,6 +1,6 @@
 <?php
 
-namespace ClarusSharedModels\Models;
+namespace ClarusCommon\Models;
 
 use App\Calendars\EventResolver;
 use Illuminate\Database\Eloquent\Model;

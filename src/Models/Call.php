@@ -1,11 +1,11 @@
 <?php
 
-namespace ClarusSharedModels\Models;
+namespace ClarusCommon\Models;
 
 use Carbon\Carbon;
 use NumberFormatter;
-use ClarusSharedModels\Traits\Deferrable;
-use ClarusSharedModels\Casts\NotificationSettings;
+use ClarusCommon\Traits\Deferrable;
+use ClarusCommon\Casts\NotificationSettings;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Model;

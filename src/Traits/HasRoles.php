@@ -1,10 +1,10 @@
 <?php
 
-namespace ClarusSharedModels\Traits;
+namespace ClarusCommon\Traits;
 
-use ClarusSharedModels\Models\Role;
-// use ClarusSharedModels\Models\Partner;
-// use ClarusSharedModels\Models\RoleUser;
+use ClarusCommon\Models\Role;
+// use ClarusCommon\Models\Partner;
+// use ClarusCommon\Models\RoleUser;
 
 // Use string references for models to avoid dependency issues
 // Projects should have these models: Role, Partner, RoleUser
@@ -19,24 +19,24 @@ trait HasRoles
     /**
      * Assign a given role to the user.
      *
-     * @param  \ClarusSharedModels\Models\Role|int|string  $role
-     * @param  \ClarusSharedModels\Models\Partner|int|null  $partner
+     * @param  \ClarusCommon\Models\Role|int|string  $role
+     * @param  \ClarusCommon\Models\Partner|int|null  $partner
      * @return $this
      */
     public function assignRole($role, $partner = null)
     {
         if (is_numeric($role)) {
-            $roleClass = 'ClarusSharedModels\\Models\\Role';
+            $roleClass = 'ClarusCommon\\Models\\Role';
             $role = $roleClass::find((int) $role);
         }
 
         if (is_string($role)) {
-            $roleClass = 'ClarusSharedModels\\Models\\Role';
+            $roleClass = 'ClarusCommon\\Models\\Role';
             $role = $roleClass::where('name', $role)->first();
         }
 
         if (is_numeric($partner)) {
-            $partnerClass = 'ClarusSharedModels\\Models\\Partner';
+            $partnerClass = 'ClarusCommon\\Models\\Partner';
             $partner = $partnerClass::find($partner);
         }
 
@@ -58,7 +58,7 @@ trait HasRoles
      */
     public function getPartnerAdminPartners()
     {
-        $roleClass = 'ClarusSharedModels\\Models\\Role';
+        $roleClass = 'ClarusCommon\\Models\\Role';
         $role = $roleClass::firstWhere('name', $roleClass::PARTNER_ADMIN);
 
         return $this
@@ -74,8 +74,8 @@ trait HasRoles
     /**
      * Determine if a user has a given role.
      *
-     * @param  \ClarusSharedModels\Models\Role|int|string  $role
-     * @param  \ClarusSharedModels\Models\Partner|int|null  $partner
+     * @param  \ClarusCommon\Models\Role|int|string  $role
+     * @param  \ClarusCommon\Models\Partner|int|null  $partner
      * @return bool
      */
     public function hasRole($role, $partner = null): bool
@@ -150,7 +150,7 @@ trait HasRoles
     /**
      * Determine if the user is an office manager at a given partner.
      *
-     * @param  \ClarusSharedModels\Models\Partner|int|null  $partner
+     * @param  \ClarusCommon\Models\Partner|int|null  $partner
      * @return bool
      */
     public function isOfficeManager($partner = null): bool
@@ -169,7 +169,7 @@ trait HasRoles
     /**
      * Determines if the user if a partner admin or office manager at the given partner.
      *
-     * @param  int|\ClarusSharedModels\Models\Partner  $partner
+     * @param  int|\ClarusCommon\Models\Partner  $partner
      * @return bool
      */
     public function isOfficeManagerOrPartnerAdmin($partner)
@@ -188,7 +188,7 @@ trait HasRoles
     /**
      * Determine if the user is a partner admin at a given partner.
      *
-     * @param  \ClarusSharedModels\Models\Partner|int|null  $partner
+     * @param  \ClarusCommon\Models\Partner|int|null  $partner
      * @return bool
      */
     public function isPartnerAdmin($partner = null): bool
@@ -233,8 +233,8 @@ trait HasRoles
     /**
      * Revoke a given role from the user.
      *
-     * @param  \ClarusSharedModels\Models\Role|string|int  $role
-     * @param  \ClarusSharedModels\Models\Partner|int|null  $partner
+     * @param  \ClarusCommon\Models\Role|string|int  $role
+     * @param  \ClarusCommon\Models\Partner|int|null  $partner
      * @return void
      */
     public function revokeRole($role, $partner = null): void
@@ -266,8 +266,8 @@ trait HasRoles
      */
     public function roles()
     {
-        return $this->belongsToMany('ClarusSharedModels\\Models\\Role', 'role_user')
-            ->using('ClarusSharedModels\\Models\\RoleUser')
+        return $this->belongsToMany('ClarusCommon\\Models\\Role', 'role_user')
+            ->using('ClarusCommon\\Models\\RoleUser')
             ->withPivot('id', 'partner_id')
             ->withTimestamps();
     }
