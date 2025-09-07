@@ -12,11 +12,11 @@ Common Models and Database Entities for Laravel projects.
     "repositories": [
         {
             "type": "vcs",
-            "url": "https://github.com/your-username/clarus-common.git"
+            "url": "https://github.com/ClarusCare/clarus-common.git"
         }
     ],
     "require": {
-        "clarus/shared-models": "dev-main"
+        "claruscare/clarus-common": "dev-main"
     }
 }
 ```
@@ -49,7 +49,7 @@ class User extends SharedUser
 
 1. Add as submodule:
 ```bash
-git submodule add https://github.com/your-username/clarus-common.git shared-models
+git submodule add https://github.com/your-username/clarus-common.git clarus-common
 ```
 
 2. Add to composer.json autoload:
@@ -57,7 +57,7 @@ git submodule add https://github.com/your-username/clarus-common.git shared-mode
 {
     "autoload": {
         "psr-4": {
-            "ClarusCommon\\": "shared-models/src/"
+            "ClarusCommon\\": "clarus-common/src/"
         }
     }
 }

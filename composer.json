@@ -1,5 +1,5 @@
 {
-    "name": "clarus/shared-models",
+    "name": "clarus/clarus-common",
     "description": "Common Models and Database Entities for Clarus projects",
     "type": "library",
     "require": {
