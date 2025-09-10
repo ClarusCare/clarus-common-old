@@ -1,4 +1,4 @@
-# clarus-common
+# clarus-common (private)
 Common Models and Database Entities for Laravel projects.
 
 ## Installation
